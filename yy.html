@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seminar Hall Booking System</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,red,rgb(6, 30, 167));
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.contain{
+  
+  color: rgb(24, 0, 9);
+  width:200px;
+  height: 400px;
+  background:rgb(255, 255, 255);
+  padding:30px;
+  border-radius:8px;
+  text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3);
+  position: absolute ; left:400px;
+}
+
+
+
+.container{
+
+  
+  color: rgb(24, 0, 9);
+  width:200px;
+  height: 400px;
+  background:rgb(255, 255, 255);
+  padding:30px;
+  border-radius:8px;
+  text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3);
+  position: absolute ; right:400px;
+}
+h4{
+  margin-top: 100px;
+}
+
+h1,h2,h3,h4{margin-bottom:200px;}
+input,select{
+  width:90%;
+  
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:6px;
+}
+button{
+  width:95%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+  background:#080808;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+}
+button:hover{background:#220108;}
+.card{
+  background:rgba(255,255,255,0.2);
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+}
+.period-box{
+  text-align:left;
+  margin:10px 20px;
+}
+.booked{
+  color:red;
+}
+.small-btn{
+  padding:6px 12px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ROLE SELECTION -->
+<div class="contain" id="rolePage">
+  <h4>🏛 Seminar Hall Booking</h4>
+  <button onclick="showStaff()">👩‍🏫 Staff Login</button>
+</div>
+
+<div class="container" id="rolePage">
+  <h4>🏛 Seminar Hall Bookings</h4>
+  <button onclick="showAdmin()">👨‍💼 Admin Login</button>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="container" id="adminLogin" style="display:none">
+  <h2>Admin Login</h2>
+  <input id="adminUser" placeholder="Admin Username">
+  <input id="adminPass" type="password" placeholder="Password">
+  <button onclick="adminLogin()">Login</button>
+  <button onclick="back()">⬅ Back</button>
+</div>
+
+<!-- STAFF LOGIN -->
+<div class="container" id="staffLogin" style="display:none">
+  <h2>Staff Login</h2>
+  <input id="staffUser" placeholder="Staff ID">
+  <input id="staffPass" type="password" placeholder="Password">
+  <button onclick="staffLogin()">Login</button>
+  <button onclick="staffRegister()">Register</button>
+  <button onclick="back()">⬅ Back</button>
+</div>
+
+<!-- STAFF MENU -->
+<div class="container" id="staffMenu" style="display:none">
+  <h2>👩‍🏫 Staff Dashboard</h2>
+  <button onclick="openBooking()">📅 Book Seminar Hall</button>
+  <button onclick="openStatus()">📄 Booking Status</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- STAFF BOOKING -->
+<div class="container" id="staffBooking" style="display:none">
+  <h2>📅 Book Seminar Hall</h2>
+  <input id="eventName" placeholder="Event Name">
+  <input id="eventDate" type="date" onchange="updatePeriods()">
+
+  <select id="hall" onchange="updatePeriods()">
+    <option>MBA Seminar Hall</option>
+    <option>BIOTECH Seminar Hall</option>
+  </select>
+
+  <h4>Select Periods (1–7)</h4>
+  <div class="period-box">
+    <label><input type="checkbox" class="period" value="1"> 1st Period</label><br>
+    <label><input type="checkbox" class="period" value="2"> 2nd Period</label><br>
+    <label><input type="checkbox" class="period" value="3"> 3rd Period</label><br>
+    <label><input type="checkbox" class="period" value="4"> 4th Period</label><br>
+    <label><input type="checkbox" class="period" value="5"> 5th Period</label><br>
+    <label><input type="checkbox" class="period" value="6"> 6th Period</label><br>
+    <label><input type="checkbox" class="period" value="7"> 7th Period</label>
+  </div>
+
+  <button onclick="bookHall()">Book</button>
+  <button onclick="backToMenu()">⬅ Back</button>
+</div>
+
+<!-- STAFF STATUS -->
+<div class="container" id="staffStatus" style="display:none">
+  <h2>📄 Booking Status</h2>
+  <div id="staffBookings"></div>
+  <button onclick="backToMenu()">⬅ Back</button>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="container" id="adminDash" style="display:none">
+  <h2>📋 Booking Requests</h2>
+  <div id="adminBookings"></div>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+/* ELEMENTS */
+const rolePage = document.getElementById("rolePage");
+const adminLoginDiv = document.getElementById("adminLogin");
+const staffLoginDiv = document.getElementById("staffLogin");
+const staffMenu = document.getElementById("staffMenu");
+const staffBooking = document.getElementById("staffBooking");
+const staffStatus = document.getElementById("staffStatus");
+const adminDash = document.getElementById("adminDash");
+
+const adminUser = document.getElementById("adminUser");
+const adminPass = document.getElementById("adminPass");
+const staffUser = document.getElementById("staffUser");
+const staffPass = document.getElementById("staffPass");
+
+const eventName = document.getElementById("eventName");
+const eventDate = document.getElementById("eventDate");
+const hall = document.getElementById("hall");
+
+const staffBookings = document.getElementById("staffBookings");
+const adminBookings = document.getElementById("adminBookings");
+
+let currentStaff = null;
+let bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+
+/* NAVIGATION */
+function showAdmin(){
+  rolePage.style.display="none";
+  adminLoginDiv.style.display="block";
+}
+function showStaff(){
+  rolePage.style.display="none";
+  staffLoginDiv.style.display="block";
+}
+function back(){
+  adminLoginDiv.style.display="none";
+  staffLoginDiv.style.display="none";
+  rolePage.style.display="block";
+}
+function logout(){
+  location.reload();
+}
+function backToMenu(){
+  staffBooking.style.display="none";
+  staffStatus.style.display="none";
+  staffMenu.style.display="block";
+}
+
+/* ADMIN */
+function adminLogin(){
+  if(adminUser.value==="admin" && adminPass.value==="admin123"){
+    adminLoginDiv.style.display="none";
+    adminDash.style.display="block";
+    loadAdminBookings();
+  } else alert("Invalid Admin Login");
+}
+
+/* STAFF */
+function staffRegister(){
+  if(!staffUser.value || !staffPass.value){
+    alert("Fill all fields");
+    return;
+  }
+  localStorage.setItem("staff_"+staffUser.value, staffPass.value);
+  alert("Staff Registered Successfully");
+}
+function staffLogin(){
+  let pass = localStorage.getItem("staff_"+staffUser.value);
+  if(pass && pass === staffPass.value){
+    currentStaff = staffUser.value;
+    staffLoginDiv.style.display="none";
+    staffMenu.style.display="block";
+  } else alert("Invalid Staff Login");
+}
+
+/* STAFF OPTIONS */
+function openBooking(){
+  staffMenu.style.display="none";
+  staffBooking.style.display="block";
+  updatePeriods();
+}
+function openStatus(){
+  staffMenu.style.display="none";
+  staffStatus.style.display="block";
+  loadStaffBookings();
+}
+
+/* SHOW BOOKED PERIODS */
+function updatePeriods(){
+  document.querySelectorAll(".period").forEach(p=>{
+    p.disabled = false;
+    p.checked = false;
+    p.parentElement.classList.remove("booked");
+  });
+
+  if(!eventDate.value) return;
+
+  bookings.forEach(b=>{
+    if(b.date === eventDate.value && b.hall === hall.value && b.status === "Approved"){
+      b.periods.split(", ").forEach(pr=>{
+        let cb = document.querySelector(`.period[value="${pr}"]`);
+        if(cb){
+          cb.disabled = true;
+          cb.parentElement.classList.add("booked");
+        }
+      });
+    }
+  });
+}
+
+/* BOOKING */
+function bookHall(){
+  if(!eventName.value || !eventDate.value){
+    alert("Enter event details");
+    return;
+  }
+
+  let selectedPeriods = [];
+  document.querySelectorAll(".period:checked").forEach(p=>{
+    selectedPeriods.push(p.value);
+  });
+
+  if(selectedPeriods.length === 0){
+    alert("Select at least one period");
+    return;
+  }
+
+  for(let b of bookings){
+    if(b.date===eventDate.value && b.hall===hall.value && b.status==="Approved"){
+      if(selectedPeriods.some(p=>b.periods.split(", ").includes(p))){
+        alert("One or more selected periods already booked");
+        return;
+      }
+    }
+  }
+
+  bookings.push({
+    staff: currentStaff,
+    event: eventName.value,
+    date: eventDate.value,
+    hall: hall.value,
+    periods: selectedPeriods.join(", "),
+    status: "Pending"
+  });
+
+  localStorage.setItem("bookings", JSON.stringify(bookings));
+  alert("Booking Requested");
+
+  eventName.value="";
+  eventDate.value="";
+  document.querySelectorAll(".period").forEach(p=>p.checked=false);
+}
+
+/* STAFF STATUS */
+function loadStaffBookings(){
+  staffBookings.innerHTML="";
+  bookings.filter(b=>b.staff===currentStaff).forEach(b=>{
+    staffBookings.innerHTML += `
+      <div class="card">
+        ${b.event} | ${b.date}<br>
+        ${b.hall}<br>
+        Periods: ${b.periods}<br>
+        Status: <b>${b.status}</b>
+      </div>
+    `;
+  });
+}
+
+/* ADMIN VIEW */
+function loadAdminBookings(){
+  adminBookings.innerHTML="";
+  bookings.forEach((b,i)=>{
+    adminBookings.innerHTML += `
+      <div class="card">
+        ${b.event} | ${b.date}<br>
+        ${b.hall}<br>
+        Periods: ${b.periods}<br>
+        Staff: ${b.staff}<br>
+        Status: <b>${b.status}</b><br>
+        ${b.status==="Pending"
+          ? `<button class="small-btn" onclick="approve(${i})">Approve</button>`
+          : ""}
+      </div>
+    `;
+  });
+}
+function approve(i){
+  bookings[i].status="Approved";
+  localStorage.setItem("bookings", JSON.stringify(bookings));
+  loadAdminBookings();
+}
+</script>
+
+</body>
+</html>
